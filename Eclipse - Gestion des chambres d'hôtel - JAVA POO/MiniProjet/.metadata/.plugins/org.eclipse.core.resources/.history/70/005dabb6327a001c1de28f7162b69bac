@@ -1,0 +1,160 @@
+package voyage;
+
+import java.io.*;
+import java.util.Scanner;
+import java.util.Vector;
+
+public class Voyage {	
+	
+	public static void main(String[] args) throws IOException, ClassNotFoundException {
+		
+		int nbrClient = 0;
+		System.out.print("Entrez le nombre de clients: ");
+		    //Scanner: permet a l'utilisateur de saisir des donnees
+		Scanner sc = new Scanner(System.in);
+		nbrClient = sc.nextInt();
+		sc.nextLine(); //pour vider le buffer de scanner
+		System.out.println("-------------------------------");
+		
+			//Tableau Vector (pour Q4-) :
+		Vector <Client> client;
+		client = new Vector<Client>();
+		
+			//Q3)- Creer des objets a partir de chaque class:
+			//FOR LOOP POUR ENTRER LES INFO DES CLIENTS:
+		for(int i=0; i<nbrClient; i++) {
+			Stay st = new Stay();
+			Client cl = new Client();
+			HotelBooking hb = new HotelBooking();
+			PlaneTicket pt = new PlaneTicket();
+		
+			System.out.println("\nVeuillez saisir les informations du client "+(i+1)+": ");
+
+			//Enterer les informations sur le client:
+			System.out.print("\t->Nom du client: ");
+			String name = sc.nextLine();
+			name = name.toUpperCase(); //Convertir en MAJISCULE
+			cl.setNom(name);
+			//-----------------------------------
+			System.out.print("\t->ID client: ");
+			int id = sc.nextInt();
+			cl.setId(id);
+			sc.nextLine();//pour vider le buffer de scanner
+			//-----------------------------------
+			System.out.print("\t->Adresse du client: ");
+			String add = sc.nextLine();
+			add = add.toUpperCase();
+			cl.setAdresse(add);
+			
+			//Enterer les informations sur l'Hotel Booking:
+			System.out.print("\t->Nombre de chambres: ");
+			int nbrRoom = sc.nextInt();
+			hb.setNombreRoom(nbrRoom);
+			//-----------------------------------
+			System.out.println("\t->Jour de debut: ");
+			System.out.print("\t   Jour: ");
+			int js = sc.nextInt();
+			System.out.print("\t   Mois: ");
+			int ms = sc.nextInt();
+			System.out.print("\t   Annee: ");
+			int as = sc.nextInt();
+			hb.setStart(new Date(js,ms,as));
+			//-----------------------------------
+			System.out.println("\t->Jour de fin: ");
+			System.out.print("\t   Jour: ");
+			int je = sc.nextInt();
+			System.out.print("\t   Mois: ");
+			int me = sc.nextInt();
+			System.out.print("\t   Annee: ");
+			int ae = sc.nextInt();
+			hb.setEnd(new Date(je,me,ae));
+			//-----------------------------------
+			hb.setNombreNight();
+			//-----------------------------------
+			System.out.print("\t->Type de chambre (Single|Double|Family): ");
+			String roomtype = sc.next();
+			roomtype = roomtype.toUpperCase();
+			hb.setRoomType(roomtype);	
+			sc.nextLine(); //pour vider le buffer de scanner
+			//-----------------------------------
+			System.out.print("\t->Fumer (NON|OUI) : ");
+			String s = sc.next();
+			s = s.toUpperCase();
+			if (s.equals("NON")) hb.setSmoking(false);
+			else if (s.equals("OUI")) hb.setSmoking(true);	
+			sc.nextLine(); //pour vider le buffer de scanner
+			
+			System.out.print("\t->Reference de l'avion: ");
+			String ref = sc.next();
+			ref = ref.toUpperCase();
+			pt.setReference(ref);	
+			sc.nextLine(); //pour vider le buffer de scanner
+			
+			st.addReservedStayHotel(hb);
+			st.addTransport(pt);
+			st.setStay(0); //ici zero car tab hotelBooking a 1 element
+			
+			cl.addTravel_document(pt); cl.addReservedClientHotel(hb);  /* AND/OR */  cl.addStayClient(st);
+			
+			//Q4)- Ajouter les clients a tableau Vector
+			client.addElement(cl);
+			System.out.println("\n************************************************************************************************");
+			System.out.println("************************************************************************************************");
+		}
+		sc.close(); //fermer le scanner
+		
+		//Afficher les informations du clients a partir de la tableau Vector:
+		System.out.println("\n\n\n\n\n\n\n\n******************* Les information du clients (A partir de tableau Vector): *******************");
+		System.out.println("Nombre total de cliens: "+client.size()+"\n-----------------------\n"); //client.size() ou nbrClient
+		for(int i=0; i<client.size(); i++){ //ou i<nbrClient
+			System.out.print(client.elementAt(i).toString(i));
+			client.elementAt(i).getStayClient().get(0).calculatePrice();
+			System.out.println("\n************************************************************************************************");
+			System.out.println("************************************************************************************************");
+		}
+		
+		
+		
+		//Q5)-Serialization:
+		FileOutputStream f = new FileOutputStream("client_file");
+		ObjectOutputStream o = new ObjectOutputStream(f);
+		
+		//Enregistrer dans le fichier "client_file"
+		for(int i=0; i<client.size(); i++) {
+			o.writeObject(client.get(i));
+		}
+		o.close();
+		f.close();
+		
+		System.out.println("\n\nSERIALIZALION... ==> La serialization terminee avec succes"
+				            +"\n----------------");
+		
+
+		//Deserialization a partir du fichier "client_file"
+		FileInputStream fd = new FileInputStream("client_file");
+		ObjectInputStream od = new ObjectInputStream(fd);
+		
+		System.out.println("\n\nDESERIALIZATION... "+
+						   "\n------------------");
+		for(int i=0; i<client.size(); i++){
+			Client cl_serializer = (Client)od.readObject();
+			System.out.println("\nClient n"+(i+1)+": "+"\n-------------------");
+			System.out.print(cl_serializer.toString(i));
+			cl_serializer.getStayClient().get(0).calculatePrice();
+		}
+		od.close();
+		fd.close();
+		System.out.println("\n************************************************************************************************");
+		System.out.println("************************************************************************************************");
+	}
+	
+	
+	
+	///<<Enumeration>> RoomType :
+	/*
+	public enum RoomType{
+		SINGLE,DOUBLE,FAMILY;
+	}
+	*/
+
+}
